@@ -18,7 +18,9 @@ const { serveStatic } = require('./lib/staticServer');
 
 const { PUBLIC_DIR, COVERS_DIR, MOVIES_DIR } = require('./lib/paths');
 
-const PORT = process.env.PORT || loadSettings().PORT;
+const settings = loadSettings()
+
+const PORT = process.env.PORT || settings.PORT;
 
 const server = http.createServer((req, res) => {
   // Rede de segurança do processo: qualquer exceção SÍNCRONA num handler
@@ -52,7 +54,7 @@ function manejarRequisicao(req, res) {
   // deduplica por IP numa janela de 30min — sem isso, cada carregamento de
   // página viraria meia dúzia de linhas idênticas. O IP fica guardado pra
   // ser reaproveitado pelo log de chamadas nas rotas de conteúdo abaixo.
-  const clientIp = checarWhitelist.getClientIp(req, loadSettings().proxiesConfiaveis);
+  const clientIp = checarWhitelist.getClientIp(req, settings.proxiesConfiaveis);
   logManager.registrarConexao(clientIp);
 
   // API WHATWG URL (new URL / URLSearchParams) no lugar do antigo
