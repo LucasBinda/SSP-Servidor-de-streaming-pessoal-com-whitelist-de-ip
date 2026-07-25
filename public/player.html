@@ -15,9 +15,10 @@
 
   <div class="player-wrap">
     <div class="video-shell">
-      <!-- nofullscreen: o botão nativo só amplia o <video>, o que esconderia a
-           legenda desenhada pelo player (camada .legenda-overlay). A tela cheia
-           de verdade fica no painel de configurações, ampliando o shell inteiro. -->
+      <!-- nofullscreen: o botão de tela cheia nativo só amplia o <video>, o que
+           esconderia a legenda desenhada pelo player (camada .legenda-overlay).
+           O modo imersivo do player é o "Modo retrato" (preenche a janela do
+           navegador sem fullscreen do SO), no painel de configurações. -->
       <video id="video-player" controls autoplay controlslist="nofullscreen"></video>
 
       <div id="legenda-overlay" class="legenda-overlay" hidden></div>
@@ -34,13 +35,12 @@
           <span class="rotulo-secao">Tela</span>
           <div class="linha-botoes">
             <button id="btn-modo-retrato" type="button" class="btn-painel" aria-pressed="false" title="O filme ocupa a janela inteira do navegador (Esc sai)">Modo retrato</button>
-            <button id="btn-tela-cheia" type="button" class="btn-painel" title="Tela cheia (Esc sai)">Tela cheia</button>
           </div>
         </div>
 
         <div class="painel-secao">
           <span class="rotulo-secao">Ajuste de imagem</span>
-          <div class="linha-botoes" role="group" aria-label="Ajuste de imagem no modo retrato e tela cheia">
+          <div class="linha-botoes" role="group" aria-label="Ajuste de imagem no modo retrato">
             <button type="button" class="btn-painel btn-ajuste" data-ajuste="original" aria-pressed="true" title="Imagem completa, com bordas pretas se a proporção não bater">Original</button>
             <button type="button" class="btn-painel btn-ajuste" data-ajuste="preencher" aria-pressed="false" title="Amplia até ocupar a tela, cortando as beiradas da imagem">Preencher</button>
             <button type="button" class="btn-painel btn-ajuste" data-ajuste="esticar" aria-pressed="false" title="Ocupa a tela deformando a proporção da imagem">Esticar</button>

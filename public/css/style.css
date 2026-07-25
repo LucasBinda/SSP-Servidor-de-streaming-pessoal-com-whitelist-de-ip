@@ -634,12 +634,10 @@ input.switch:focus-visible {
   color: var(--text-secondary);
 }
 
-/* Legenda desenhada pelo player (substitui a <track> nativa — ver player.js) */
 .legenda-overlay {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 9%;
   max-width: 86%;
   padding: 4px 14px;
   border-radius: 4px;
@@ -708,29 +706,26 @@ body.modo-retrato .video-shell {
   background: #000;
 }
 
-/* Tela cheia de verdade é pedida no .video-shell (não no <video>), pra
-   legenda e engrenagem continuarem por cima — mesmas regras de layout. */
-.video-shell:fullscreen {
-  background: #000;
-}
-
-body.modo-retrato .video-shell video,
-.video-shell:fullscreen video {
+/* object-position: center bottom ancora o vídeo no FUNDO da janela: com a
+   proporção sobrando (contain), a faixa preta vai toda pro TOPO em vez de
+   ficar metade embaixo. Assim não há tarjão preto sob o vídeo, e a legenda
+   (fixada acima da barra de progresso, no fundo) cai sobre a imagem, não no
+   preto. */
+body.modo-retrato .video-shell video {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: center bottom;
   border-radius: 0;
 }
 
-/* Ajuste de imagem (só age quando o filme ocupa a tela): Preencher corta as
-   beiradas pra eliminar as bordas pretas, Esticar deforma a proporção. */
-body.modo-retrato.ajuste-preencher .video-shell video,
-body.ajuste-preencher .video-shell:fullscreen video {
+/* Ajuste de imagem (só age no modo retrato): Preencher corta as beiradas pra
+   eliminar as bordas pretas, Esticar deforma a proporção. */
+body.modo-retrato.ajuste-preencher .video-shell video {
   object-fit: cover;
 }
 
-body.modo-retrato.ajuste-esticar .video-shell video,
-body.ajuste-esticar .video-shell:fullscreen video {
+body.modo-retrato.ajuste-esticar .video-shell video {
   object-fit: fill;
 }
 

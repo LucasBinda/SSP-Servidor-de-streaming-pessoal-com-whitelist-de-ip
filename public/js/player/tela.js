@@ -35,13 +35,9 @@ export function configurarOcultarConfigOcioso(video) {
 }
 
 // Modo retrato: o filme ocupa a janela inteira do navegador (sem virar tela
-// cheia do sistema — a aba e a barra do navegador continuam lá). Tela cheia:
-// fullscreen de verdade, mas pedido no .video-shell em vez do <video>, pra
-// legenda desenhada e a engrenagem continuarem visíveis por cima do filme.
+// cheia do sistema — a aba e a barra do navegador continuam lá). Esc sai.
 export function configurarModosDeTela(video) {
-  const shell = document.querySelector('.video-shell');
   const btnRetrato = document.getElementById('btn-modo-retrato');
-  const btnTelaCheia = document.getElementById('btn-tela-cheia');
 
   function definirRetrato(ligado) {
     document.body.classList.toggle('modo-retrato', ligado);
@@ -53,43 +49,14 @@ export function configurarModosDeTela(video) {
     definirRetrato(!document.body.classList.contains('modo-retrato'));
   });
 
-  // Esc sai do modo retrato — mas não quando a tela cheia está ativa, senão
-  // um único Esc derrubaria os dois modos de uma vez (o navegador já usa
-  // Esc pra sair do fullscreen).
   document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (document.fullscreenElement) return;
-    if (document.body.classList.contains('modo-retrato')) definirRetrato(false);
-  });
-
-  function alternarTelaCheia() {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else if (shell.requestFullscreen) {
-      shell.requestFullscreen().catch((err) => {
-        console.error('[player] tela cheia negada pelo navegador:', err);
-      });
-    } else if (shell.webkitRequestFullscreen) {
-      shell.webkitRequestFullscreen(); // Safari antigo
+    if (e.key === 'Escape' && document.body.classList.contains('modo-retrato')) {
+      definirRetrato(false);
     }
-  }
-
-  btnTelaCheia.addEventListener('click', alternarTelaCheia);
-  document.addEventListener('fullscreenchange', () => {
-    btnTelaCheia.textContent = document.fullscreenElement ? 'Sair da tela cheia' : 'Tela cheia';
-  });
-
-  // Clique duplo no vídeo alterna a tela cheia (o atalho nativo se perdeu
-  // junto com o controlslist="nofullscreen"). A faixa final é ignorada:
-  // dois cliques rápidos na barra de controles (volume, seek) não devem
-  // jogar o player em fullscreen.
-  video.addEventListener('dblclick', (e) => {
-    if (e.offsetY > video.clientHeight - 64) return;
-    alternarTelaCheia();
   });
 }
 
-// Ajuste de imagem quando o filme ocupa a tela (modo retrato/tela cheia):
+// Ajuste de imagem quando o filme ocupa a tela (modo retrato):
 // Original mantém a imagem fiel (bordas pretas se a proporção não bater),
 // Preencher amplia cortando as beiradas e Esticar deforma até ocupar tudo.
 // No layout normal da página não tem efeito — ali a altura do player já
