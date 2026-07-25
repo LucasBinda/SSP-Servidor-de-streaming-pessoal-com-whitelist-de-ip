@@ -18,7 +18,7 @@ const { serveStatic } = require('./lib/staticServer');
 
 const { PUBLIC_DIR, COVERS_DIR, MOVIES_DIR } = require('./lib/paths');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || loadSettings().PORT;
 
 const server = http.createServer((req, res) => {
   // Rede de segurança do processo: qualquer exceção SÍNCRONA num handler

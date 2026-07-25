@@ -1,4 +1,5 @@
 {
+  "PORT": "3000",
   "removerFilmesAusentesDoCatalogo": true,
   "proxiesConfiaveis": ["127.0.0.1", "::1"],
   "reencodeAtivo": true,
