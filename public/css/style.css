@@ -696,7 +696,7 @@ input.switch:focus-visible {
 /* Modo retrato: o filme toma a janela inteira do navegador (sem fullscreen
    do sistema). O shell vira uma camada fixa sobre a página; Esc sai. */
 body.modo-retrato {
-  overflow: hidden;
+  overflow: auto;
 }
 
 body.modo-retrato .video-shell {
@@ -714,8 +714,12 @@ body.modo-retrato .video-shell {
 body.modo-retrato .video-shell video {
   width: 100%;
   height: 100%;
+  /* Anula o teto do layout normal (.player-wrap video), que continuaria
+     valendo aqui e travava a altura em 100vh-140px — deixando uma faixa
+     preta do shell embaixo do vídeo. */
+  max-height: none;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center;
   border-radius: 0;
 }
 
