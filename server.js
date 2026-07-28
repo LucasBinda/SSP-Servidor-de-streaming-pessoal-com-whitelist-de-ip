@@ -189,10 +189,11 @@ server.listen(PORT, () => {
   } else {
     logManager.aviso('config', 'antiFilterLog ausente ou inválido em config/settings.json (esperado true/false) — usando padrão false, dedupe de logs ativo');
   }
-  console.log('Lembre de abrir a porta no firewall/roteador para acesso remoto');
-  console.log(`Servidor de streaming rodando na porta ${PORT}`);
-  console.log(`Acesse via http://<ip-do-servidor>:${PORT}`);
   
+  logManager.info('startUp', `Lembre de abrir a porta no firewall/roteador para acesso remoto`);
+  logManager.info('startUp', `Servidor de streaming rodando na porta ${PORT}`);
+
+
   // Endereços reais desta máquina, um por família, pra copiar e colar
   // direto no navegador. Link-local IPv6 (fe80::) fica de fora: não é
   // acessível de outra rede e exigiria zone-id na URL. IPv6 vai entre
@@ -200,10 +201,13 @@ server.listen(PORT, () => {
   const interfaces = Object.values(os.networkInterfaces()).flat();
   const ipv4 = interfaces.find((i) => i && !i.internal && i.family === 'IPv4');
   const ipv6 = interfaces.find((i) => i && !i.internal && i.family === 'IPv6' && !i.address.startsWith('fe80'));
-  if (ipv4) console.log(`IPv4: http://${ipv4.address}:${PORT}`);
-  if (ipv6) console.log(`IPv6: http://[${ipv6.address}]:${PORT}`);
+  if (ipv4) {
+    logManager.info('startUp', `IPv4: http://${ipv4.address}:${PORT}`);
+  }
 
-
+  if (ipv6) {
+    logManager.info('startUp', `IPv6: http://[${ipv6.address}]:${PORT}`);
+  }
   // Migração única (idempotente): converte o data/watchtime.json antigo pro
   // novo data/users.json (watch time + prefs por usuário). Roda no boot,
   // antes de servir; não faz nada se users.json já existe.
