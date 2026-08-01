@@ -56,6 +56,51 @@ export function configurarModosDeTela(video) {
   });
 }
 
+// Tela cheia (Fullscreen API do SO). O detalhe crucial: pedimos fullscreen ao
+// .video-shell — o CONTÊINER — e nunca ao <video>. O fullscreen nativo promove
+// só o elemento alvo (e seus descendentes) pra "top layer"; se o alvo é o
+// <video>, a engrenagem, a legenda, os stats e o painel — que são IRMÃOS do
+// <video> dentro do shell, não filhos dele — ficam de fora e somem. Mirando o
+// shell, todos continuam desenhados sobre o filme. (É o mesmo motivo do
+// controlslist="nofullscreen": o botão nativo fullscreenava só o <video>.)
+export function configurarTelaCheia(video) {
+  const btn = document.getElementById('btn-tela-cheia');
+  const shell = document.querySelector('.video-shell');
+  if (!btn || !shell) return;
+
+  // Navegador sem Fullscreen API (ou bloqueado por política): não oferece um
+  // botão que não faria nada.
+  if (!document.fullscreenEnabled) {
+    btn.hidden = true;
+    return;
+  }
+
+  const estaCheia = () => document.fullscreenElement === shell;
+
+  function alternar() {
+    if (estaCheia()) {
+      document.exitFullscreen();
+    } else {
+      shell.requestFullscreen().catch((err) => {
+        console.error('[player] falha ao entrar em tela cheia:', err);
+      });
+    }
+  }
+
+  btn.addEventListener('click', alternar);
+  // Duplo-clique no vídeo é o gesto que todo mundo espera pra tela cheia — como
+  // o botão nativo foi removido (nofullscreen), redirecionamos pro shell.
+  video.addEventListener('dblclick', alternar);
+
+  // Mantém o botão em sincronia com o fullscreen real — cobre o Esc, o F11 e
+  // qualquer saída que não passe pelo nosso clique.
+  document.addEventListener('fullscreenchange', () => {
+    const cheia = estaCheia();
+    btn.setAttribute('aria-pressed', String(cheia));
+    btn.textContent = cheia ? 'Sair da tela cheia' : 'Tela cheia';
+  });
+}
+
 // Ajuste de imagem quando o filme ocupa a tela (modo retrato):
 // Original mantém a imagem fiel (bordas pretas se a proporção não bater),
 // Preencher amplia cortando as beiradas e Esticar deforma até ocupar tudo.

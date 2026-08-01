@@ -5,6 +5,7 @@ import { configurarPainelConfiguracoes } from './player/legendas.js';
 import {
   configurarOcultarConfigOcioso,
   configurarModosDeTela,
+  configurarTelaCheia,
   configurarAjusteDeImagem,
 } from './player/tela.js';
 import { preencherFaixas, configurarEqualizador, configurarReforcoVolume } from './player/audio.js';
@@ -72,6 +73,7 @@ function iniciarPlayer(arquivo) {
   configurarPainelConfiguracoes({ arquivo, video });
   configurarOcultarConfigOcioso(video);
   configurarModosDeTela(video);
+  configurarTelaCheia(video);
   configurarAjusteDeImagem();
   configurarEqualizador(video);
   configurarReforcoVolume(video);

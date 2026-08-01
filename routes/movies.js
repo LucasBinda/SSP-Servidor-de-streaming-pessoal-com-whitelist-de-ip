@@ -11,6 +11,7 @@ const {
   agruparCatalogo,
   getMimeType,
 } = require('../lib/catalog');
+const { Store } = require('../lib/stores');
 
 // Camada HTTP do catálogo e do streaming. A lógica de domínio (o que É o
 // catálogo, como se varre o acervo, como se sincroniza, como se agrupa) mora
@@ -33,6 +34,12 @@ function montarCatalogoAgrupado() {
   // Fase 4: gera capa (frame aleatório do próprio filme) pra toda entrada
   // sem capa ou com capa local que não existe mais em disco.
   coverPicker.garantirCapas(listaSincronizada);
+
+  // Higiene oportunista: aproveita a visita ao catálogo pra varrer dado órfão
+  // (job de reencode de arquivo removido, login expirado...) sem esperar as 6h
+  // do intervalo de fundo. Throttled (ver Store.podarTodasSeVencido), então
+  // rajadas de requisições não repetem a varredura inteira.
+  Store.podarTodasSeVencido();
 
   const overrides = {};
   listaSincronizada.forEach((item) => {

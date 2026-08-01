@@ -733,6 +733,33 @@ body.modo-retrato.ajuste-esticar .video-shell video {
   object-fit: fill;
 }
 
+/* Tela cheia nativa (Fullscreen API): o alvo é o .video-shell, então TUDO que
+   está dentro dele — vídeo, engrenagem, legenda, stats e painel — continua
+   visível. Sem estas regras, o :fullscreen deixaria o teto de .player-wrap
+   video (max-height: 100vh-140px) valer e o vídeo não preencheria a tela. É o
+   mesmo comportamento visual do Modo retrato, só que via fullscreen do SO. */
+.video-shell:fullscreen {
+  background: #000;
+}
+
+.video-shell:fullscreen video {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 0;
+}
+
+/* Ajuste de imagem também na tela cheia (as classes moram no body) */
+body.ajuste-preencher .video-shell:fullscreen video {
+  object-fit: cover;
+}
+
+body.ajuste-esticar .video-shell:fullscreen video {
+  object-fit: fill;
+}
+
 .player-wrap h1 {
   font-size: 32px;
   font-weight: 400;
