@@ -213,19 +213,35 @@ server.listen(PORT, () => {
   // antes de servir; não faz nada se users.json já existe.
   migrarUsuarios();
 
-  // limpa temporários de conversões interrompidas e enfileira todo o acervo
-  // pra avaliação de compatibilidade (vídeos adicionados enquanto o servidor
-  // estava desligado). O worker só converte o que não toca no navegador; o
-  // resto é marcado como já-compatível. Novos arquivos detectados em runtime
-  // são enfileirados pelo /api/movies (routes/movies.js).
+  // limpa temporários de conversões interrompidas por crash/restart, antes de
+  // qualquer varredura enfileirar coisa nova.
   prepararWorker();
-  const arquivos = scanMoviesDir(MOVIES_DIR);
-  enfileirarConversoes(arquivos);
 
-  // sincroniza o catálogo já no boot (sem esperar a primeira
-  // visita) e gera capa pra quem não tem — ou pra quem referencia uma capa
-  // local que não existe mais em disco.
-  coverPicker.garantirCapas(sincronizarCatalogo(arquivos));
+  // Varredura do acervo: scan de media/movies -> fila de reencode + catálogo
+  // sincronizado + capas geradas pra quem não tem. É o trabalho de sempre do
+  // boot, agora numa função reusável que TAMBÉM roda periodicamente.
+  //
+  // Por que periódica: a detecção de arquivo novo é "puxada" — um vídeo
+  // adicionado em runtime (download que terminou e foi movido pra
+  // media/movies) só era percebido na PRÓXIMA visita a /api/movies, no próximo
+  // restart, ou — só no catálogo, sem reencode nem capa — na poda de 6h. O
+  // heartbeat do reencode (2 min) não resolve: ele revisita só jobs "failed" já
+  // gravados, nunca varre o disco atrás de arquivo novo. Sem ninguém abrir o
+  // catálogo na hora certa, o filme "demorava muito pra entrar" e o reencode
+  // nem começava. O tick faz o servidor descobrir o arquivo sozinho — em
+  // background, sem depender de tráfego. O QUIESCENCIA_MS do scan ignora
+  // arquivo ainda assentando (baixando); o tick seguinte o pega ao completar.
+  const varrerAcervo = () => {
+    const arquivos = scanMoviesDir(MOVIES_DIR);
+    enfileirarConversoes(arquivos);
+    coverPicker.garantirCapas(sincronizarCatalogo(arquivos));
+  };
+  varrerAcervo();
+  // 1 min: arquivo novo aparece em ~1-2 min depois de assentar. O scan é barato
+  // e sincronizarCatalogo/garantirCapas só escrevem/geram quando há mudança, então
+  // tick ocioso é quase de graça. unref() pra não segurar o processo no
+  // shutdown, igual à poda de 6h abaixo.
+  setInterval(varrerAcervo, 60 * 1000).unref();
 
   // Higiene de TODO dado que pode virar lixo, INDEPENDENTE de tráfego: uma
   // varredura só (Store.podarTodas, lib/stores.js) percorre todos os stores

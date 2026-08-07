@@ -1,7 +1,7 @@
 // Orquestrador do player: lê os parâmetros da URL, garante a sessão e monta
 // os módulos de comportamento. Cada configurar* mora no seu próprio arquivo
 // em js/player/ (legendas, tela, áudio, watch time) — aqui só se costura tudo.
-import { configurarPainelConfiguracoes } from './player/legendas.js';
+import { configurarPainelConfiguracoes } from './player/painel.js';
 import {
   configurarOcultarConfigOcioso,
   configurarModosDeTela,
@@ -70,7 +70,7 @@ function iniciarPlayer(arquivo) {
       'dependem do navegador — este vídeo será convertido para MP4 pela otimização de armazenamento.';
   });
 
-  configurarPainelConfiguracoes({ arquivo, video });
+  configurarPainelConfiguracoes();
   configurarOcultarConfigOcioso(video);
   configurarModosDeTela(video);
   configurarTelaCheia(video);

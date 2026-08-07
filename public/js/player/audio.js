@@ -13,7 +13,6 @@ function rotuloFaixa(faixa, tipo) {
 // Chamado quando /media/tracks responde — popula os seletores do painel.
 export function preencherFaixas(tracks, video, arquivo) {
   const selectAudio = document.getElementById('select-audio');
-  const selectLegenda = document.getElementById('select-legenda');
 
   tracks.audio.forEach((faixa) => {
     const opt = document.createElement('option');
@@ -36,11 +35,20 @@ export function preencherFaixas(tracks, video, arquivo) {
     configurarTrocaDeAudio({ arquivo, video, selectAudio, idxPadrao });
   }
 
+  // Legendas entram como <track> nativas do <video>: o navegador põe o botão
+  // "CC" na barra de controles, lista cada faixa pelo label e cuida de
+  // renderizar/trocar sozinho — sem parser de VTT nem overlay do nosso lado.
+  // Nenhuma vem marcada como `default`: começa sem legenda, e o usuário liga a
+  // que quiser pelo CC (o navegador também pode auto-ligar uma faixa que bata
+  // com a preferência de legenda dele). O src é o mesmo /media/subtitle
+  // (WebVTT com cache em disco) de antes.
   tracks.subtitles.forEach((faixa) => {
-    const opt = document.createElement('option');
-    opt.value = String(faixa.index);
-    opt.textContent = rotuloFaixa(faixa, 'legenda');
-    selectLegenda.appendChild(opt);
+    const track = document.createElement('track');
+    track.kind = 'subtitles';
+    track.label = rotuloFaixa(faixa, 'legenda');
+    if (faixa.idioma && faixa.idioma !== 'und') track.srclang = faixa.idioma;
+    track.src = `/media/subtitle?arquivo=${encodeURIComponent(arquivo)}&sub=${encodeURIComponent(faixa.index)}`;
+    video.appendChild(track);
   });
 }
 

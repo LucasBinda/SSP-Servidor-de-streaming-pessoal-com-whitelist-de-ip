@@ -15,13 +15,13 @@
 
   <div class="player-wrap">
     <div class="video-shell">
-      <!-- nofullscreen: o botão de tela cheia nativo só amplia o <video>, o que
-           esconderia a legenda desenhada pelo player (camada .legenda-overlay).
-           O modo imersivo do player é o "Modo retrato" (preenche a janela do
-           navegador sem fullscreen do SO), no painel de configurações. -->
+      <!-- nofullscreen: o botão de tela cheia nativo do <video> amplia SÓ o
+           vídeo, escondendo a engrenagem, os stats e o painel (irmãos do
+           <video>, não filhos dele). O imersivo do player é o "Modo retrato" e
+           a "Tela cheia" do painel, que expandem o .video-shell inteiro e
+           preservam esses controles. As legendas são <track> nativas,
+           renderizadas dentro do próprio <video> (botão CC da barra). -->
       <video id="video-player" controls autoplay controlslist="nofullscreen"></video>
-
-      <div id="legenda-overlay" class="legenda-overlay" hidden></div>
 
       <!-- "Stats de nerd": dados técnicos no canto superior esquerdo, sobre o
            filme. Toggle no menu de config; pointer-events:none pra não pegar
@@ -51,13 +51,6 @@
         <div class="painel-secao">
           <label for="select-audio">Áudio</label>
           <select id="select-audio"></select>
-        </div>
-
-        <div class="painel-secao">
-          <label for="select-legenda">Legenda</label>
-          <select id="select-legenda">
-            <option value="">Nenhuma</option>
-          </select>
         </div>
 
         <div class="painel-secao">

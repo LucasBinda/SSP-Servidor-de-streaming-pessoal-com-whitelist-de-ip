@@ -634,24 +634,14 @@ input.switch:focus-visible {
   color: var(--text-secondary);
 }
 
-.legenda-overlay {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 86%;
-  padding: 4px 14px;
-  border-radius: 4px;
+/* Legendas nativas (<track> do <video>): o navegador renderiza as cues dentro
+   da área do vídeo e cuida do posicionamento (inclusive em fullscreen). Aqui só
+   ajustamos a APARÊNCIA da cue pra combinar com o player — fundo translúcido e
+   texto branco. O tamanho fica a cargo do navegador (proporcional ao vídeo), e
+   a preferência de legenda do navegador/SO pode sobrepor isto. */
+#video-player::cue {
   background: rgba(0, 0, 0, 0.65);
   color: #fff;
-  font-size: clamp(15px, 2.4vw, 28px);
-  line-height: 1.35;
-  text-align: center;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  pointer-events: none;
-}
-
-.legenda-overlay[hidden] {
-  display: none;
 }
 
 /* "Stats de nerd": dados técnicos no canto superior esquerdo, sobre o filme */
@@ -706,11 +696,9 @@ body.modo-retrato .video-shell {
   background: #000;
 }
 
-/* object-position: center bottom ancora o vídeo no FUNDO da janela: com a
-   proporção sobrando (contain), a faixa preta vai toda pro TOPO em vez de
-   ficar metade embaixo. Assim não há tarjão preto sob o vídeo, e a legenda
-   (fixada acima da barra de progresso, no fundo) cai sobre a imagem, não no
-   preto. */
+/* object-position ancora o vídeo na janela: com a proporção sobrando (contain),
+   a faixa preta se concentra em vez de ficar dividida. As legendas nativas são
+   desenhadas pelo navegador dentro da área da imagem, sobre o vídeo. */
 body.modo-retrato .video-shell video {
   width: 100%;
   height: 100%;
