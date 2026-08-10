@@ -10,6 +10,25 @@ function rotuloFaixa(faixa, tipo) {
   return partes.join(' ');
 }
 
+// Distância da legenda até o rodapé, em % da altura do vídeo (0 = topo, 100 =
+// base, colada na barra). As cues do WebVTT extraído não trazem posição, então
+// o navegador ancora no fundo; este valor sobe um pouco (88 ≈ 12% de folga
+// embaixo). É o ÚNICO número a mexer pra aproximar/afastar do rodapé.
+const LEGENDA_LINHA_PCT = 88;
+
+// Reposiciona as cues de uma faixa de legenda nativa. `line` só vale como
+// porcentagem com snapToLines=false; e só mexemos em quem está com line 'auto'
+// (sem posição própria), pra não atropelar legenda de "placa"/sign que já veio
+// posicionada de propósito no arquivo.
+function posicionarLegenda(textTrack) {
+  if (!textTrack || !textTrack.cues) return;
+  for (const cue of textTrack.cues) {
+    if (cue.line !== 'auto') continue;
+    cue.snapToLines = false;
+    cue.line = LEGENDA_LINHA_PCT;
+  }
+}
+
 // Chamado quando /media/tracks responde — popula os seletores do painel.
 export function preencherFaixas(tracks, video, arquivo) {
   const selectAudio = document.getElementById('select-audio');
@@ -48,6 +67,10 @@ export function preencherFaixas(tracks, video, arquivo) {
     track.label = rotuloFaixa(faixa, 'legenda');
     if (faixa.idioma && faixa.idioma !== 'und') track.srclang = faixa.idioma;
     track.src = `/media/subtitle?arquivo=${encodeURIComponent(arquivo)}&sub=${encodeURIComponent(faixa.index)}`;
+    // O 'load' do <track> dispara quando o navegador baixa/parseia o VTT — o que
+    // só acontece quando o usuário liga a faixa pelo CC. Aí as cues já existem e
+    // dá pra subi-las do rodapé (o navegador, sozinho, deixaria coladas embaixo).
+    track.addEventListener('load', () => posicionarLegenda(track.track));
     video.appendChild(track);
   });
 }
