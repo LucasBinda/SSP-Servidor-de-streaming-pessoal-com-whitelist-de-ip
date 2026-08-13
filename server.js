@@ -1,5 +1,4 @@
 const http = require('http');
-const os = require('os');
 
 const checarWhitelist = require('./middleware/ipWhitelist');
 const { handleAuthSession, checarSessao } = require('./middleware/sessionCookie');
@@ -14,6 +13,7 @@ const { prepararWorker, enfileirarConversoes } = require('./lib/reencodeWorker')
 const { Store } = require('./lib/stores');
 const { iniciarAtualizadorDuckdns } = require('./lib/duckdns');
 const { coverPicker } = require('./lib/coverPicker');
+const { networkConnection } = require('./lib/networkConnection');
 const { serveStatic } = require('./lib/staticServer');
 
 const { PUBLIC_DIR, COVERS_DIR, MOVIES_DIR } = require('./lib/paths');
@@ -194,19 +194,15 @@ server.listen(PORT, () => {
   logManager.info('startUp', `Servidor de streaming rodando na porta ${PORT}`);
 
 
-  // Endereços reais desta máquina, um por família, pra copiar e colar
-  // direto no navegador. Link-local IPv6 (fe80::) fica de fora: não é
-  // acessível de outra rede e exigiria zone-id na URL. IPv6 vai entre
-  // colchetes — é a sintaxe obrigatória de URL pra essa família.
-  const interfaces = Object.values(os.networkInterfaces()).flat();
-  const ipv4 = interfaces.find((i) => i && !i.internal && i.family === 'IPv4');
-  const ipv6 = interfaces.find((i) => i && !i.internal && i.family === 'IPv6' && !i.address.startsWith('fe80'));
-  if (ipv4) {
-    logManager.info('startUp', `IPv4: http://${ipv4.address}:${PORT}`);
-  }
-
-  if (ipv6) {
-    logManager.info('startUp', `IPv6: http://[${ipv6.address}]:${PORT}`);
+  // Monitor de conectividade de rede. A NetworkConnection é a dona da detecção
+  // de IP (um IPv4 e um IPv6 não-loopback, sem link-local fe80::) e do
+  // acompanhamento em runtime: se a rede cair depois, ou se o servidor subir JÁ
+  // sem rede, o aviso de "sem conexão" vai pro rede.log e pro terminal — antes o
+  // boot ficava mudo, sem IP e sem pista do que houve. Quando há rede, iniciar()
+  // fica quieto e os endereços de acesso saem abaixo, no mesmo [startUp] de sempre.
+  networkConnection.iniciar(PORT);
+  for (const linha of networkConnection.linhasDeAcesso()) {
+    logManager.info('startUp', linha);
   }
   // Migração única (idempotente): converte o data/watchtime.json antigo pro
   // novo data/users.json (watch time + prefs por usuário). Roda no boot,
