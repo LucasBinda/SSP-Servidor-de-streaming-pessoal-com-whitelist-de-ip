@@ -25,6 +25,49 @@ function mostrarErro(msg) {
   elLista.appendChild(li);
 }
 
+// Função para ordenar os itens/episódios por Temporada e Episódio (padrão TXEX).
+// Suporta variações como: Temporada 01, T01E02, T1 E2, T1 - E02, T.01_E.02, etc.  
+function ordenarEpisodiosRegex(itens) {
+  // Regex flexível: procura 'T', espaço/separadores opcionais, números, 'E', espaço/separadores opcionais, números
+  const regexTE = /T[^\d]*(\d+)[^\d]*E[^\d]*(\d+)/i;
+
+  return itens.sort((a, b) => {
+    // Usamos o 'titulo' ou o 'arquivo' para extrair a informação do TXEX
+    const textoA = a.titulo || a.arquivo || '';
+    const textoB = b.titulo || b.arquivo || '';
+
+    const matchA = textoA.match(regexTE);
+    const matchB = textoB.match(regexTE);
+
+    if (matchA && matchB) {
+      const tempA = parseInt(matchA[1], 10);
+      const epA = parseInt(matchA[2], 10);
+
+      const tempB = parseInt(matchB[1], 10);
+      const epB = parseInt(matchB[2], 10);
+
+      // Se as temporadas forem diferentes, ordena pela temporada
+      if (tempA !== tempB) {
+        return tempA - tempB;
+      }
+      // Se for a mesma temporada, ordena pelo episódio
+      if (epA !== epB) {
+        return epA - epB;
+      }
+    }
+
+    // Se um tem o padrão TXEX e o outro não, o que tem vem primeiro
+    if (matchA && !matchB) return -1;
+    if (!matchA && matchB) return 1;
+
+    // Caso nenhum tenha o padrão ou empatem, usa a ordenação natural ignorando acentos/especiais
+    return textoA.localeCompare(textoB, undefined, {
+      numeric: true,
+      sensitivity: 'base'
+    });
+  });
+}
+
 // Monta uma linha da lista de episódios. DOM + textContent (nomes vêm de
 // disco — conteúdo arbitrário; nunca innerHTML com interpolação).
 function criarLinha(item, indice) {
@@ -100,7 +143,11 @@ async function carregar() {
     elCapa.alt = `Capa de ${serie.titulo || ''}`;
 
     elLista.innerHTML = '';
-    serie.itens.forEach((item, i) => elLista.appendChild(criarLinha(item, i)));
+
+    // Aplica a função de ordenação nos episódios antes de iterar
+    const itensOrdenados = ordenarEpisodiosRegex(serie.itens || []);
+    
+    itensOrdenados.forEach((item, i) => elLista.appendChild(criarLinha(item, i)));
   } catch (err) {
     console.error('[serie] falha ao carregar a série:', err);
     mostrarErro('Não foi possível carregar a série.');
