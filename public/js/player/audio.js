@@ -343,6 +343,7 @@ export function configurarEqualizador(video) {
     const engatar = () => {
       if (toggleEq.checked && !entradaCadeia) ligar();
     };
+    video.addEventListener('play', engatar, { once: true })
     document.addEventListener('pointerdown', engatar, { once: true });
     document.addEventListener('keydown', engatar, { once: true });
   }
@@ -399,6 +400,7 @@ export function configurarReforcoVolume(video) {
   // grafo só pode engatar num gesto (mesma restrição do equalizador).
   if (fator !== 100) {
     const engatar = () => aplicar();
+    video.addEventListener('play', engatar, { once: true })
     document.addEventListener('pointerdown', engatar, { once: true });
     document.addEventListener('keydown', engatar, { once: true });
   }
