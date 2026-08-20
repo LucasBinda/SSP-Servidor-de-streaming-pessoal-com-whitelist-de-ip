@@ -55,8 +55,11 @@ if (!arquivo) {
 function iniciarPlayer(arquivo) {
   const video = document.getElementById('video-player');
 
-  video.src = `/stream?arquivo=${encodeURIComponent(arquivo)}`;
+  const streamUrl = `/stream?arquivo=${encodeURIComponent(arquivo)}`;
 
+  if (video.getAttribute('src') !== streamUrl) {
+    video.src = streamUrl;
+  }
   video.play().catch(() => {
     /* autoplay bloqueado pelo navegador — o usuário dá play manualmente */
   });
